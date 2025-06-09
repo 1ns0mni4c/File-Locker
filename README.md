@@ -17,10 +17,10 @@ This project is designed for:
 
 ## Features
 
-- Basic file encryption using standard cryptographic libraries
-- Simple key generation and management
+- Hybrid encryption using AES and RSA
 - File discovery and enumeration
 - Multi-OS support
+- Completely offline
 
 ## Usage
 
