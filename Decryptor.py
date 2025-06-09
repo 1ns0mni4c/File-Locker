@@ -5,7 +5,7 @@ from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
 from cryptography.hazmat.backends import default_backend
 import json
 
-private_key = None  # Replace with actual private key in PEM format
+private_key = None # Replace with actual private key in PEM format
 
 class Decryptor:
     def __init__(self):
@@ -19,7 +19,7 @@ class Decryptor:
             password=None,
             backend=default_backend()
         )
-    
+
     def decrypt_file(self, path):
         encrypted_path = Path(path)
         output_path = encrypted_path.with_suffix("")
@@ -49,19 +49,17 @@ class Decryptor:
             unpadder = padding.PKCS7(128).unpadder()
 
             with open(output_path, "wb") as outfile:
-                decrypted_data = b""
-                
                 while True:
                     chunk = infile.read(8192)
                     if not chunk:
                         break
-                    decrypted_data += decryptor.update(chunk)
-                
-                decrypted_data += decryptor.finalize()
-                unpadded_data = unpadder.update(decrypted_data) + unpadder.finalize()
-                outfile.write(unpadded_data)
-        
-        return output_path
+                    decrypted_chunk = decryptor.update(chunk)
+                    outfile.write(unpadder.update(decrypted_chunk))
+
+                outfile.write(decryptor.finalize())
+                outfile.write(unpadder.finalize())
+
+        encrypted_path.unlink()
     
     def find_files(self):
         for location in self.locations:
@@ -69,12 +67,18 @@ class Decryptor:
             
             if folder.exists() and folder.is_dir():
                 for file in folder.rglob("*"):
-                    if file.is_file() and file.suffix == ".enc":
+                    if file.is_file() and file.suffix == ".locked":
                         self.files.append(file)
     
     def decrypt_files(self):
         for file in self.files:
             try:
-                decrypted_file = self.decrypt_file(file)
+                self.decrypt_file(file)
+                print(f"[+] Decrypted: {file}")
             except:
-                pass
+                print(f"[-] Failed to decrypt: {file}")
+    
+    def main(self):
+        self.load_private_key()
+        self.find_files()
+        self.decrypt_files()
