@@ -20,6 +20,7 @@ This project is designed for:
 - Basic file encryption using standard cryptographic libraries
 - Simple key generation and management
 - File discovery and enumeration
+- Multi-OS support
 
 ## Usage
 
